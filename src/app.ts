@@ -2,11 +2,10 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import config from "./config";
 import cookieParser from "cookie-parser";
-import { prisma } from "./lib/prisma";
-
-import bcrypt from "bcryptjs";
 import { userRoute } from "./modules/user/user.route";
 import { authRoute } from "./modules/auth/auth.route";
+import { postRoute } from "./modules/post/post.route";
+import { commentRoute } from "./modules/comment/comment.route";
 
 
 const app: Application = express();
@@ -28,5 +27,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/uaers", userRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/posts", postRoute);
+app.use("/api/comments", commentRoute);
 
 export default app;
