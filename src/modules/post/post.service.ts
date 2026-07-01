@@ -31,7 +31,31 @@ const getPostStatasFromDB = async () => {
 
 };
 
-const getMyPostFromDB = async () => {
+const getMyPostFromDB = async (authorId: string) => {
+
+	const result = await prisma.post.findMany({
+		where: {
+			authorId
+		},
+		orderBy: {
+			createdAt: "desc"
+		},
+		include: {
+			comment: true,
+			author: {
+				omit: {
+					password: true
+				}
+			},
+			_count: {
+				select: {
+					comment: true
+				}
+			}
+		}
+	})
+
+	return result;
 
 };
 
