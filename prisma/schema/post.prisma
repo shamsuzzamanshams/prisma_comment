@@ -2,8 +2,8 @@ model post {
     id         String     @id @default(uuid())
     title      String     @db.VarChar(255)
     content    String     @db.Text
-    thumbnil   String?
-    isFeatures Boolean    @default(false)
+    thumbnail   String?
+    isFeatured Boolean    @default(false)
     status     PostStatus @default(PUBLISHED)
     tags       String[]
     views      Int        @default(0)
