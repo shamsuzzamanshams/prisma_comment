@@ -31,6 +31,15 @@ const getAllPost = catchAsync(async (req: Request, res: Response, next: NextFunc
 });
 
 const getPoststatas = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+	const result = await postService.getPostStatasFromDB();
+
+
+	sendResponse(res, {
+		success: true,
+		statusCode: httpStatus.OK,
+		message: "Post Stats Retrived Successfully",
+		data: result
+	});
 
 });
 
