@@ -30,4 +30,6 @@ app.use("/api/auth", authRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/comments", commentRoute);
 
+
+
 export default app;
