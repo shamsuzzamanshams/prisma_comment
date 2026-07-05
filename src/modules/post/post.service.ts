@@ -1,7 +1,7 @@
 
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
+import { ICreatePostPayload, IPostquery, IUpdatePostPayload } from "./post.interface";
 
 const createPostIntoDB = async (payload: ICreatePostPayload, userId: string) => {
 	const result = await prisma.post.create({
@@ -13,9 +13,114 @@ const createPostIntoDB = async (payload: ICreatePostPayload, userId: string) => 
 	return result;
 };
 
-const getAllPostFromDB = async () => {
+
+
+
+const getAllPostFromDB = async (query: IPostquery) => {
+
+	const limit = query.limit ? Number(query.limit) : 10;
+	const page = query.page ? Number(query.page) : 1;
+	const skip = (page - 1) * limit;
+	const sortBy = query.sortBy ? query.sortBy : "createdAt";
+	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 	const post = await prisma.post.findMany(
+
 		{
+			where: {
+				AND: [
+
+					query.searchTerm ? {
+						OR: [
+							{
+								title: {
+									contains: query.searchTerm,
+									mode: "insensitive"
+								}
+							},
+							{
+								content: {
+									contains: query.searchTerm,
+									mode: "insensitive"
+								}
+							}
+						]
+					} : {},
+
+					query.title ? { title: query.title } : {},
+
+					query.content ? { content: query.content } : {}
+				]
+			},
+
+			take: limit,
+			skip: skip,
+
+			orderBy: {
+				[sortBy]: sortOrder
+			},
+			// filtaring / exact match
+			// where: {
+			// 	AND: [
+			// 		{
+			// 			title: "i am game developer"
+			// 		},
+			// 		{
+			// 			content: "Content of the post goes here."
+			// 		},
+			// 		// {
+			// 		// 	tags:{
+			// 		// 		has: ""
+			// 		// 	}
+			// 		// }
+			// 	]
+			// },
+
+			// searching / partial match
+			// where: {
+			// 	OR: [
+			// 		{
+			// 			content: {
+			// 				contains: "game",
+			// 				mode: "insensitive"
+			// 			}
+			// 		},
+			// 		{
+			// 			title: {
+			// 				contains: "Game",
+			// 				mode: "insensitive"
+			// 			}
+			// 		}
+			// 	]
+			// },
+
+			// filtaring and searching
+			// where: {
+			// 	AND: [
+			// 		{
+			// 			OR: [
+			// 				{
+			// 					content: {
+			// 						contains: "game",
+			// 						mode: "insensitive"
+			// 					}
+
+			// 				},
+			// 				{
+			// 					title: {
+			// 						contains: "Game",
+			// 						mode: "insensitive"
+			// 					}
+			// 				}
+			// 			]
+			// 		},
+			// 		{
+			// 			title: "i am game developer"
+			// 		},
+			// 		{
+			// 			content: "game"
+			// 		}
+			// 	]
+			// },
 			include: {
 				author: {
 					omit: {
