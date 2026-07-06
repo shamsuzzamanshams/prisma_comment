@@ -19,3 +19,9 @@ enum CommentStatus {
     APPRIVED
     REJECT
 }
+
+enum SubcriptionStatus {
+    ACTIVE
+    CANCELED
+    EXPIRED
+}
