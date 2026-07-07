@@ -27,7 +27,8 @@ const getAllPost = catchAsync(async (req: Request, res: Response, next: NextFunc
 		success: true,
 		statusCode: httpStatus.OK,
 		message: "Retrived All Post Successfully",
-		data: result
+		data: result.data,
+		meta: result.meta
 	})
 });
 

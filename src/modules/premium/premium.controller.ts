@@ -4,18 +4,19 @@ import { sendResponse } from "../../utils/sendRespinse";
 import httpstatus from "http-status";
 import { premiumService } from "./premium.service";
 
-const getPremiumcontent = catchAsync(async(req: Request, res: Response, next: NextFunction) =>{
+const getPremiumcontent = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+	const query = req.query;
+	const result = await premiumService.getPremiumContentFromDB(query);
 
 
-	const result = await premiumService.getPremiumContentFromDB();
 
-
-
-	sendResponse(res,{
+	sendResponse(res, {
 		success: true,
 		statusCode: httpstatus.OK,
 		message: "Premium content retrive successfully",
-		data: result
+		data: result.data,
+		meta: result.meta
 	})
 })
 
