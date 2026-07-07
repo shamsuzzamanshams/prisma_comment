@@ -15,8 +15,39 @@ const createCheckoutSession = catchAsync(async (req: Request, res: Response, nex
 		message: "Checkout completed successfully",
 		data: result
 	})
-})
+});
+
+const handlewebhook = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+	const event = req.body as Buffer;
+	const signature = req.headers['stripe-signature']!;
+
+	await subscriptionService.handleWebhookIntoDB(event, signature as string);
+
+	sendResponse(res, {
+		success: true,
+		statusCode: 200,
+		message: "webhook trigger successfully",
+		data: null
+	})
+});
+
+const getSubscriptionStatus = catchAsync(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const userId = req.user?.id
+
+		const result = await subscriptionService.getSubscriptionStatus(userId as string);
+
+		sendResponse(res, {
+			success: true,
+			statusCode: httpstatus.OK,
+			message: "Subscription status retrived successfully",
+			data: result
+		})
+	}
+)
 
 export const subscriptionController = {
 	createCheckoutSession,
+	handlewebhook,
+	getSubscriptionStatus
 }

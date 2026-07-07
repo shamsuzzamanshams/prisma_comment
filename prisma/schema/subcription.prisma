@@ -3,13 +3,13 @@ model Subcription {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    currentPeriodEnd DateTime
-    status           SubcriptionStatus @default(ACTIVE)
-    stripeCustomerId String @unique
+    currentPeriodEnd     DateTime
+    status               SubcriptionStatus @default(ACTIVE)
+    stripeCustomerId     String            @unique
+    stripeSubscriptionId String            @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
 
     @@map("subcriptions")
 }

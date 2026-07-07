@@ -1,6 +1,7 @@
 import config from "../../config";
 import { prisma } from "../../lib/prisma"
 import { stripe } from "../../lib/stripe";
+import { handleChangeSubscription, handleCheckoutCompleted } from "./subscription.utils";
 
 
 const createCheckoutSession = async (userId: string) => {
@@ -53,8 +54,66 @@ const createCheckoutSession = async (userId: string) => {
 		paymentUrl: transictionResult
 	}
 
+};
+
+const handleWebhookIntoDB = async (payload: Buffer, signature: string) => {
+	const endpointSecret = config.stripe_webhook_secret;
+	const event = stripe.webhooks.constructEvent(
+		payload,
+		signature,
+		endpointSecret
+	);
+
+	switch (event.type) {
+		//Occurs when a Checkout Session has been successfully completed.
+		case 'checkout.session.completed':
+			// const paymentIntent = event.data.object;
+			// console.log(event.data.object);
+
+			await handleCheckoutCompleted(event.data.object);
+
+
+
+
+
+			break;
+		// Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
+		case 'customer.subscription.updated':
+
+			await handleChangeSubscription(event.data.object);
+
+			break;
+		//Occurs whenever a customer’s subscription ends.
+		case 'customer.subscription.deleted':
+			await handleChangeSubscription(event.data.object);
+			break;
+		default:
+			// Unexpected event type
+			console.log(`No event matched. Unhandled event type ${event.type}.`);
+			break
+	}
+};
+
+const getSubscriptionStatus = async (userId : string) => {
+    const isSubscriptionExist = await prisma.subcription.findUniqueOrThrow({
+        where : {
+            userId
+        }
+    });
+
+    const isActive = isSubscriptionExist.status === "ACTIVE" && isSubscriptionExist.currentPeriodEnd && new Date(isSubscriptionExist.currentPeriodEnd) > new Date();
+
+    return {
+        status : isSubscriptionExist.status,
+        isSubscribed : isActive,
+        currentPeriodEnd : isSubscriptionExist.currentPeriodEnd
+    }
 }
 
+
+
 export const subscriptionService = {
-	createCheckoutSession
+	createCheckoutSession,
+	handleWebhookIntoDB,
+	getSubscriptionStatus
 }
