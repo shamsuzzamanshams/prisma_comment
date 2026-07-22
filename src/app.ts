@@ -15,6 +15,8 @@ import { premiumRoute } from "./modules/premium/premium.route";
 
 const app: Application = express();
 
+
+
 app.use(cors({
 	origin: config.app_url,
 	credentials: true
